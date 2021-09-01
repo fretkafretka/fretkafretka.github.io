@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+*{
+    box-sizing: border-box;
+}
+
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: auto;
+    min-height: 700px;
+}
+
+.main-container {
+    background-color: #F2F2F2;
+    width: 30%;
+    min-height: 50px;
+    display: flex;
+    /* align-items: center; */
+    flex-direction: column;
+    border-radius: 10px;
+    /* padding: 20px; */
+    box-shadow: 0px 0px 19px 0px rgba(0,0,0,0.75);
+    overflow: hidden;
+    
+}
+
+.content {
+    /* width: 90%; */
+    background-color: #fff;
+    margin: 10px;
+    border: 1px solid rgb(167, 167, 167);
+    border-radius: 10px;
+}
+
+.loading-bar {
+    width: 0%;
+    /* margin: 5px; */
+    height: 60%;
+    max-width: 100%;
+    background-color: #0489D1;
+    transition: all linear 0.3s;
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.main-container header {
+    color: #fff;
+    /* width: 100%; */
+    background-color: #4A4949;
+    padding: 10px;
+}
+
+.loading-bar-container{
+    /* margin-top: 10px; */
+    width: 50%;
+    padding-left: 5px;
+    padding-right: 5px;
+    height: 14px;
+    background: #CECECE;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.first-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 20px; 
+}
+
+.first-flex > p {
+    font-weight: 700;
+    color: #626262;
+}
+
+#arrow-container {
+    position: relative;
+    color: #494949;
+
+}
+
+#arrow-up {
+  width: 0; 
+  height: 0; 
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #494949;
+  margin-top: 18px;
+  margin-right: -5px;
+  /* position: absolute;
+  top: 160%;
+  left: 5px; */
+}
+
+#number-container {
+    position: absolute;
+    top: 13px;
+    left: -2px;
+}
+
+.target {
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 5px;
+    /* background-color: #807E81; */
+    background: linear-gradient(to top, #707070 0%,#707070 0%,#707070 21%,#aaaaaa 100%);
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    flex:0 1 10%;
+}
+
+.target>p:first-child {
+    border-bottom: 1px solid rgb(85, 85, 85);
+}
+
+.target>p{
+    margin: 0;
+}
+
+.second-flex {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    color: #626262;
+    transition: all ease 1s;
+    
+}
+
+.second-flex img {
+    height: 100%;
+    margin-right: 5px;
+}
+
+.done {
+    background: linear-gradient(to bottom, rgb(89, 255, 105) 0%,rgb(62, 255, 82) 0%,rgb(0, 204, 20) 21%,#00A910 100%);    
+}
+
+#btn {
+    margin-top: 50px;
+}
+</style>
+<body>
+    <div class='wrapper'>
+        <div class='main-container'>
+            <header>Target Indicator Demo</header>
+            <div class='content'>
+                <div class='first-flex'>
+                    <p>Reached:</p>
+                    <div class='loading-bar-container'>
+                        <div class='loading-bar'>
+
+                            <div id='arrow-container'>
+                                <div id="arrow-up"></div>
+                                <p id='number-container'>$0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='target'>
+                        <p>Target</p>
+                        <p>$15</p>
+                    </div>
+                </div>
+                <div class='second-flex'>
+                    <img src="https://cdn2.iconfinder.com/data/icons/basicset/info_16.png" alt=""><p>You need $<span id='targetSpan'></span> more to reach your target</p>
+                </div>
+            </div>
+        </div> 
+        <button id='btn'>Click</button>
+    </div>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script>
+    var initialValue = null;
+    var dif = null;
+    var target = 15;
+    var loadingBar = document.getElementsByClassName('loading-bar')[0];
+    dif = target - initialValue;
+
+    $(document).ready(
+        $.ajax({
+            url: 'http://alex.devel.softservice.org/testapi/',
+            success: (data) => {
+                initialValue = data.balance_usd;
+                dif = target - initialValue;
+            },
+            error: (jqXHR, exception) => {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                console.log(msg);
+                initialValue = 0;
+                dif = target - initialValue;
+            },
+        })
+    )
+    
+    $('#btn').on('click', foo)
+
+    function foo() {
+        if (initialValue) {
+            $('.loading-bar').width(Math.ceil(initialValue) / target * 100 + '%');
+            var percentDif = 100 - parseInt(loadingBar.style.width);
+            var count = dif / 0.2;
+            var step = percentDif / count;
+
+            $('#targetSpan').text(Math.round(dif));
+            $('#number-container').text('$' + initialValue.toFixed(1));
+
+            var interval = setInterval(
+                () => {
+                    initialValue += 0.2;
+                    $('.loading-bar').width(step + parseFloat(loadingBar.style.width) + '%');
+                    dif = target - initialValue;
+                    $('#targetSpan').text(dif.toFixed(2));
+                    $('#number-container').text('$' + initialValue.toFixed(1));
+                    if (parseFloat(loadingBar.style.width) > 100) {
+                        $('.target').addClass('done');
+                        $('.second-flex:first').fadeTo(250, 0);
+                        setTimeout(
+                            () => {
+                                $('.second-flex:first').hide()
+                            },
+                            1000)
+                        clearInterval(interval)
+                    }
+                    console.log(loadingBar.style.width)
+                }, 500
+            )
+        } else {
+            console.log('error')
+        }
+    }
+
+    
+</script>
+</body>
+</html>
